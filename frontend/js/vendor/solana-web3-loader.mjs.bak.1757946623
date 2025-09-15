@@ -1,0 +1,14 @@
+// Minimal ESM loader using jsDelivr +esm (resolves bare specifiers)
+(async () => {
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/+esm');
+    if (!mod || !mod.Transaction) throw new Error('web3 module missing Transaction');
+    globalThis.solanaWeb3 = mod;
+    dispatchEvent(new Event('solanaWeb3#ready'));
+    dispatchEvent(new Event('libs-ready'));
+    console.log('[web3-loader:esm] solanaWeb3 ready via +esm');
+  } catch (e) {
+    console.error('[web3-loader:esm] failed to load @solana/web3.js (+esm)', e);
+  }
+})();
+export {};

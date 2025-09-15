@@ -1,0 +1,34 @@
+// ESM loader for @solana/web3.js that avoids esm.sh (SES conflicts).
+// Tries jsDelivr official browser ESM first, then unpkg as fallback.
+
+async function tryImport(url) {
+  try {
+    const mod = await import(url);
+    if (mod && mod.Transaction) {
+      globalThis.solanaWeb3 = mod;
+      dispatchEvent(new Event('solanaWeb3#ready'));
+      dispatchEvent(new Event('libs-ready'));
+      console.log('[web3-loader:esm] solanaWeb3 ready via', url);
+      return true;
+    }
+  } catch (e) {
+    console.warn('[web3-loader:esm] failed', url, e);
+  }
+  return false;
+}
+
+(async () => {
+  const candidates = [
+    // Official browser ESM in the package
+    'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.browser.esm.js',
+    // A couple of alternative paths some distributions expose
+    'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.esm.js',
+    // unpkg fallback
+    'https://unpkg.com/@solana/web3.js@1.95.3/lib/index.browser.esm.js'
+  ];
+  for (const url of candidates) {
+    if (await tryImport(url)) return;
+  }
+  console.error('[web3-loader:esm] All ESM candidates failed. Web3 unavailable.');
+})();
+export {};

@@ -1,0 +1,18 @@
+// /js/vendor/solana-web3-loader.mjs — ESM loader, SES-safe.
+// Loads the ESM build and exposes it as globalThis.solanaWeb3.
+
+try {
+  // Pin to a stable version. Bump deliberately when needed.
+  const mod = await import('https://esm.sh/@solana/web3.js@1.95.3?target=es2020&bundle');
+
+  // Expose to global for legacy code
+  globalThis.solanaWeb3 = mod;
+
+  // Signal readiness (your page listens to this)
+  dispatchEvent(new Event('solanaWeb3#ready'));
+  dispatchEvent(new Event('libs-ready'));
+  console.log('[web3-loader:esm] solanaWeb3 ready', Object.keys(mod).slice(0, 12));
+} catch (e) {
+  console.error('[web3-loader:esm] failed to load @solana/web3.js ESM', e);
+}
+export {};

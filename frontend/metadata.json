@@ -1,0 +1,28 @@
+{
+  "name": "Guaso Coin",
+  "symbol": "GC",
+  "description": "Official token of the Guaso Ecosystem — powering payments, relays, and airdrops.",
+  "image": "https://presale.guaso.online/images/Guaso-logo.png",
+  "external_url": "https://guaso.online",
+  "properties": {
+    "files": [
+      {
+        "uri": "https://presale.guaso.online/images/Guaso-logo.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "947te9JE48keMCGKrEkrCVTkbZvdsh8SKTz1tPEH6wC3",
+        "share": 100
+      }
+    ],
+    "socials": {
+      "twitter": "https://twitter.com/NetworkGbe",
+      "telegram": "https://t.me/GbeMeshBot",
+      "github": "https://github.com/Gbe-Network/Mesh-Network",
+      "instagram": "https://instagram.com/networkgbe"
+    }
+  }
+}

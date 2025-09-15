@@ -1,0 +1,301 @@
+/* Techy refresh for Guaso Presale — keeps dark/teal base & cyan/GC-yellow accents */
+
+:root{
+  --bg: #021f2e;           /* deep navy/teal base */
+  --panel: rgba(2,44,67,.72);
+  --glass: rgba(0,0,0,.38);
+  --text: #e0e0e0;
+  --muted: #9fb3bf;
+  --cyan: #00e5ff;
+  --blue: #007acc;
+  --gold: #d4af37;
+  --ring: rgba(0,229,255,.3);
+  --shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg) url("../images/background.png") no-repeat center center fixed;
+  background-size: cover;
+  line-height: 1.5;
+  padding: clamp(16px,1.6vw,28px);
+  overflow-x: hidden;
+}
+
+/* GIANT GUASO LOGO WATERMARK */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("../images/Guaso-logo.png") no-repeat center center;
+  background-size: 60vmin;   /* ~5x bigger than logo */
+  opacity: 0.08;             /* faint watermark effect */
+  z-index: -3;               /* behind starfield + grid overlay */
+  pointer-events: none;      /* don’t block clicks */
+}
+
+/* Tech layers */
+#starfield{
+  position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2;
+}
+.grid-overlay{
+  position: fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(0,229,255,.08), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(212,175,55,.08), transparent 50%),
+    linear-gradient(to bottom, rgba(0,0,0,.2), rgba(0,0,0,.55)),
+    repeating-linear-gradient(
+      to right,
+      rgba(255,255,255,.05) 0 1px,
+      transparent 1px 120px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.04) 0 1px,
+      transparent 1px 120px
+    );
+}
+
+/* Topnav */
+.topnav{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:16px; margin-bottom:20px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,229,255,.2))}
+.wordmark{font-weight:700;letter-spacing:.4px}
+.nav-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Buttons */
+button, .ghost, .primary, .glow{
+  border:0; border-radius:12px; cursor:pointer; font-weight:600;
+  padding:10px 14px; transition:transform .08s ease, box-shadow .2s ease, opacity .2s;
+}
+button:disabled{opacity:.6;cursor:not-allowed}
+.ghost{
+  background: transparent; color: var(--cyan); text-decoration:none; border:1px solid rgba(0,229,255,.25);
+}
+.ghost:hover{box-shadow:0 0 0 3px rgba(0,229,255,.15); transform:translateY(-1px)}
+.primary{
+  background: linear-gradient(135deg, var(--blue), #0098ff);
+  color: #fff; box-shadow: 0 8px 24px rgba(0,152,255,.25);
+}
+.primary:hover{filter:brightness(1.05); transform:translateY(-1px)}
+.glow{
+  background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(0,152,255,.18));
+  color: var(--cyan); border:1px solid rgba(0,229,255,.35);
+  box-shadow: 0 0 24px rgba(0,229,255,.15), inset 0 0 12px rgba(0,229,255,.08);
+}
+.glow:hover{box-shadow:0 0 34px rgba(0,229,255,.25), inset 0 0 14px rgba(0,229,255,.12)}
+
+/* Cards / panels */
+.card{
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: clamp(16px,2vw,28px);
+  backdrop-filter: blur(8px);
+}
+.glass{background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45))}
+
+/* Hero */
+.hero{
+  display:grid; grid-template-columns: 1.4fr .9fr; gap: clamp(16px,2.5vw,28px);
+  align-items:center; margin-bottom: 10px; /* tightened to blend with peek */
+}
+@media (max-width: 980px){ .hero{grid-template-columns:1fr} }
+.hero-copy h1{font-size: clamp(28px,3.5vw,44px); line-height:1.1}
+.tagline{color:var(--muted); margin-top:10px}
+.hero-metrics{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
+.metric{min-width:160px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:12px 14px; border-radius:12px}
+.metric .label{font-size:12px;color:var(--muted)}
+.metric .value{font-size:18px;font-weight:700}
+.hero-art{position:relative; min-height:220px}
+.orb{
+  position:absolute; inset:auto; right:10%; top:10%;
+  width:140px; height:140px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(0,229,255,.9), rgba(0,152,255,.35) 60%, transparent 65%);
+  filter: blur(2px) drop-shadow(0 0 24px rgba(0,229,255,.4));
+  animation: float 6s ease-in-out infinite alternate;
+}
+.ring, .ring::after{
+  position:absolute; border-radius:50%; pointer-events:none;
+}
+.ring{inset:auto; right:0; bottom:0; width:200px; height:200px; border:1px solid var(--ring)}
+.ring::after{content:""; inset:10%; border:1px dashed rgba(212,175,55,.3)}
+.r2{transform: translate(-40px, 24px) rotate(8deg); border-color: rgba(212,175,55,.4)}
+@keyframes float{to{transform:translateY(-8px)}}
+
+/* Progress */
+.progress-card{margin: 18px 0}
+.progress-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progressbar{
+  height: 16px; border-radius: 999px; background: rgba(255,255,255,.06);
+  overflow:hidden; border:1px solid rgba(255,255,255,.08);
+}
+.fill{
+  height:100%; width:0%;
+  background: linear-gradient(90deg, #00baff, #00e5ff, #7af4ff);
+  box-shadow: 0 0 16px rgba(0,229,255,.4);
+  transition: width .9s cubic-bezier(.2,.7,0,1);
+}
+.progress-legend{display:flex;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:14px}
+.progress-legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,.7);margin-right:6px}
+
+/* Widget */
+.widget h2{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.purchase{margin-top:10px}
+.purchase label{display:block;margin-bottom:8px;color:#fff}
+.qty{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.qty input{
+  padding:.6rem .7rem; width:120px; border-radius:10px; border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.35); color: var(--text); font-size:1.05rem; text-align:center;
+}
+.chip{
+  background: rgba(0,0,0,.35); color:#fff; border:1px solid rgba(255,255,255,.12);
+  padding:8px 10px; border-radius:12px;
+}
+.rate-display{margin:.4rem 0 .8rem; font-size:.95rem; color: var(--gold)}
+.cta-row{display:flex; gap:10px; flex-wrap:wrap}
+
+/* Features */
+#features{margin: 18px 0}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:1000px){.features{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.features{grid-template-columns:1fr}}
+.feature{background: rgba(2,44,67,.86);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
+.feature h3{margin:8px 0}
+.feature-icon{font-size:26px;color:var(--cyan);filter:drop-shadow(0 0 10px rgba(0,229,255,.4))}
+
+/* Socials */
+#socials{margin: 18px 0; text-align:center}
+#socials h2{margin-bottom:10px}
+.social-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+#socials a{
+  color: var(--cyan); text-decoration:none; font-weight:700;
+  border:1px solid rgba(0,229,255,.25); border-radius:12px; padding:8px 12px;
+}
+#socials a:hover{box-shadow:0 0 0 3px rgba(0,229,255,.15)}
+
+/* Footer */
+footer{margin-top: 18px; color: #6e7b8b; font-size:.9rem; text-align:center}
+footer .addr{margin-top:6px}
+code{background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08); padding:2px 6px; border-radius:8px}
+
+/* Countdown */
+.countdown{
+  position: fixed; top: 12px; right: 12px;
+  background: rgba(0,0,0,.55);
+  padding: 6px 10px; border-radius: 10px;
+  font-size: .95rem; z-index: 1000; border:1px solid rgba(255,255,255,.12)
+}
+
+/* Status */
+.status{margin-top:8px}
+.soft{color: var(--muted)}
+
+/* Small polish */
+.hint summary{cursor:pointer; list-style:none}
+.hint summary::-webkit-details-marker{display:none}
+.hint summary{display:flex;align-items:center;gap:6px;margin-top:6px;margin-bottom:6px;color:var(--cyan)}
+.hint ol{margin-left:1rem;margin-top:.5rem}
+
+/* —— Tech sections —— */
+.tech-block{ margin: 18px 0; }
+.tech-grid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; align-items:center; }
+@media (max-width: 980px){ .tech-grid{ grid-template-columns:1fr; } }
+
+.lead{ color:var(--muted); margin:.4rem 0 1rem; }
+.bullets{ margin-left:1.1rem; display:grid; gap:.5rem; }
+.bullets li{ list-style: disc; }
+
+.tech-figure{ margin:0; position:relative; }
+.tech-figure img{ width:100%; height:auto; display:block; border-radius:14px; }
+.tech-figure figcaption{ font-size:.9rem; color:var(--muted); text-align:center; margin-top:.4rem; }
+
+/* Edge-lit frame */
+.edge{ padding:10px; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05); }
+.edge::after{ content:""; position:absolute; inset:8px; border-radius:14px; border:1px solid rgba(0,229,255,.22); pointer-events:none; }
+
+/* How it works */
+.how-wrap{ display:grid; grid-template-columns: .9fr 1.1fr; gap:16px; align-items:center; }
+@media (max-width: 980px){ .how-wrap{ grid-template-columns:1fr; } }
+.how-points{ display:grid; gap:10px; }
+.point{ background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px; }
+.point .tag{ font-size:.75rem; font-weight:700; margin-right:.6rem; padding:.2rem .5rem; border:1px solid rgba(0,229,255,.35); border-radius:999px; color:var(--cyan); }
+
+/* Journey */
+.journey{ display:grid; grid-template-columns: 1.1fr .9fr; gap:16px; align-items:center; }
+@media (max-width: 980px){ .journey{ grid-template-columns:1fr; } }
+.steps{ counter-reset: step; display:grid; gap:10px; }
+.steps li{ background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px; position:relative; }
+.steps li::before{ counter-increment: step; content: counter(step); position:absolute; left:-10px; top:-10px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-weight:700; background:linear-gradient(135deg, var(--blue), #00e5ff); color:#000; box-shadow:0 6px 14px rgba(0,229,255,.3); }
+
+/* Economics */
+.chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+.chip.big{ font-weight:600; }
+
+/* Reveal on scroll */
+.reveal{ opacity:0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.is-visible{ opacity:1; transform:none; }
+
+/* ——— Peek the first tech card into the fold ——— */
+.peek{
+  margin-top: -42px;     /* pulls card into initial viewport */
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 -10px 20px rgba(0,0,0,.25),
+    0 8px 24px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+@media (min-width: 1100px){
+  .peek{ margin-top: -64px; }
+}
+@media (max-width: 640px){
+  .peek{ margin-top: -14px; }
+}
+/* Ensure anchor jumps don't hide content under the peek/hero */
+#problem{ scroll-margin-top: 12px; }
+
+/* ——— Scroll hint at hero bottom ——— */
+.scroll-hint{
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  margin: -8px auto 8px; /* tucks against hero bottom */
+  text-decoration: none;
+  color: var(--cyan);
+  border: 1px solid rgba(0,229,255,.25);
+  background: rgba(0,0,0,.35);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.scroll-hint .hint-label{
+  font-size: .9rem;
+  font-weight: 600;
+}
+.scroll-hint i{ font-size: 18px; line-height: 1; }
+.scroll-hint:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(0,229,255,.12);
+}
+
+/* Gentle seam blend between hero and first tech card */
+.hero + .scroll-hint + .progress-card + #presale + #problem.peek::before{
+  content:"";
+  position:absolute;
+  top:-16px; left:10px; right:10px; height:16px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(to bottom, rgba(2,44,67,.0), rgba(2,44,67,.35));
+  pointer-events:none;
+}

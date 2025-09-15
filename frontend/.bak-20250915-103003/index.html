@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Charset MUST be first in <head> to avoid warnings -->
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Guaso Coin Presale</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.coingecko.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <!-- Lucide icons (UMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      try { lucide.createIcons(); } catch (e) { console.warn("Lucide icons failed", e); }
+    });
+  </script>
+
+  <!-- Confetti -->
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- === GLOBALS & polyfills (load before web3) === -->
+  <!-- <script src="/js/vendor/globals.js?v=23"></script> -->
+  <script>
+    (function () {
+      var g = (typeof globalThis !== 'undefined') ? globalThis
+            : (typeof window !== 'undefined') ? window
+            : (typeof global !== 'undefined') ? global
+            : this;
+      g.global = g; // some libs expect global to exist
+    })();
+  </script>
+  <script src="/js/vendor/buffer-shim.min.js?v=21"></script>
+  <script src="/js/vendor/attach-buffer.js?v=21"></script>
+  <script src="/js/vendor/process.browser.js?v=21"></script>
+  <script src="/js/vendor/attach-process.js?v=21"></script>
+
+  <!-- === Load Solana Web3 (ESM loader via esm.sh; SES-safe, no bare specifiers) === -->
+  <script type="module" src="/js/vendor/solana-web3-loader.mjs?v=20250915-102436"></script>
+
+  <!-- Bridge: re-dispatch loader event as 'libs-ready' so /js/main.js works unchanged -->
+  <script type="module">
+    addEventListener('solanaWeb3#ready', () => {
+      try {
+        if (typeof globalThis.solanaWeb3 === 'object' && globalThis.solanaWeb3) {
+          console.log('[web3-bridge] solanaWeb3 ready', Object.keys(globalThis.solanaWeb3).slice(0, 12));
+        }
+      } catch (e) {
+        console.warn('[web3-bridge] inspection failed', e);
+      }
+      dispatchEvent(new Event('libs-ready'));
+    }, { once: true });
+  </script>
+</head>
+
+<body>
+  <!-- Techy animated layers -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- Fixed countdown -->
+  <div id="countdown" class="countdown" title="Presale ends">00d:00:00:00</div>
+
+  <!-- Topbar -->
+  <nav class="topnav">
+    <div class="brand">
+      <img class="logo" src="/images/Guaso-logo.png" alt="Guaso Coin logo">
+      <span class="wordmark">Guaso Coin Presale</span>
+    </div>
+    <div class="nav-actions">
+      <a class="ghost" href="https://twitter.com/NetworkGbe" target="_blank" rel="noopener">Twitter</a>
+      <a class="ghost" href="https://t.me/GbeMeshBot" target="_blank" rel="noopener">Telegram</a>
+      <a class="primary" href="https://t.me/GbeMeshBot" target="_blank" rel="noopener"><i data-lucide="download"></i> Download App</a>
+      <button id="btnSolConnect" class="glow"><i data-lucide="plug"></i> Connect Phantom</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero card glass">
+    <div class="hero-copy">
+      <h1>The Gbe Mesh — Free Internet by Phone-to-Phone</h1>
+      <p class="tagline">
+        Download the app, join the mesh, and route traffic over nearby phones using license-exempt Wi-Fi/BLE.
+        Onion encryption protects packets. Community gateways bridge to fibre/LTE.
+      </p>
+      <div class="hero-metrics">
+        <div class="metric"><span class="label">Price</span><span class="value">$0.05 / GC</span></div>
+        <div class="metric"><span class="label">Live SOL/USD</span><span class="value" id="liveSolUsd">—</span></div>
+        <div class="metric"><span class="label">Ends in</span><span class="value soft" id="endsIn">syncing…</span></div>
+      </div>
+    </div>
+    <div class="hero-art"><div class="orb"></div><div class="ring"></div><div class="ring r2"></div></div>
+  </header>
+
+  <!-- Scroll hint -->
+  <a href="#problem" class="scroll-hint" aria-label="Scroll to tech overview">
+    <span class="hint-label">See the tech</span>
+    <i data-lucide="chevron-down"></i>
+  </a>
+
+  <!-- Progress -->
+  <section class="card glass progress-card">
+    <div class="progress-head"><h2><i data-lucide="rocket"></i> Presale Progress</h2><span id="progressLabel" class="soft">— sold</span></div>
+    <div class="progressbar"><div id="progressFill" class="fill" style="width:0%"></div></div>
+    <div class="progress-legend"><span><span class="dot"></span> Sold</span><span>Target: <strong id="targetSupply">80,000,000 GC</strong></span></div>
+  </section>
+
+  <!-- Purchase widget -->
+  <section id="presale" class="widget card glass">
+    <h2><i data-lucide="wallet"></i> Buy with SOL</h2>
+
+    <div class="purchase">
+      <label for="solAmount">How many GC?</label>
+      <div class="qty">
+        <button class="chip" data-step="-100">−100</button>
+        <button class="chip" data-step="-10">−10</button>
+        <input id="solAmount" type="number" min="1" step="1" value="100" inputmode="numeric" />
+        <button class="chip" data-step="10">+10</button>
+        <button class="chip" data-step="100">+100</button>
+      </div>
+
+      <div class="rate-display" id="rateDisplay">… fetching rate</div>
+
+      <div class="cta-row">
+        <button id="btnBuySol" class="primary" disabled>
+          <i data-lucide="shopping-cart"></i> Buy GC
+        </button>
+        <button id="btnCopyAddr" class="ghost">
+          <i data-lucide="clipboard"></i> Copy Receiver
+        </button>
+      </div>
+
+      <p id="statusSol" class="status soft"></p>
+    </div>
+
+    <details class="hint">
+      <summary><i data-lucide="info"></i> How it works</summary>
+      <ol>
+        <li>Connect Phantom and enter how many GC you want.</li>
+        <li>We calculate the exact SOL at live rates.</li>
+        <li>You send SOL to the receiver; backend verifies and mints GC to your wallet.</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- Problem & Opportunity -->
+  <section id="problem" class="card glass tech-block reveal peek">
+    <div class="tech-grid">
+      <div class="tech-copy">
+        <h2><i data-lucide="radar"></i> Problem &amp; Opportunity</h2>
+        <p class="lead">Mobile data across West Africa is too expensive. People ration access for work, study, and leisure.</p>
+        <ul class="bullets">
+          <li><strong>Dense handset grid:</strong> Smartphone density already exceeds <b>1100 devices/km²</b> in Accra, Lagos, and Abuja.</li>
+          <li><strong>Unlicensed spectrum:</strong> Sub-100 mW Wi-Fi / BLE is license-exempt in Ghana.</li>
+          <li><strong>Idle capacity:</strong> Phones sit radio-silent <b>&gt;90%</b> of the day — we harvest that slack bandwidth.</li>
+          <li><strong>Crypto-based:</strong> Token fees reward early relayers and gateway hosts from day one.</li>
+        </ul>
+      </div>
+      <figure class="tech-figure edge">
+        <img src="/images/phone-grid.png" alt="High-density idle phone grid at 100 Mbps" loading="lazy" decoding="async" fetchpriority="low" />
+        <figcaption>Idle capacity becomes community bandwidth.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" class="card glass tech-block reveal">
+    <h2><i data-lucide="circuit-board"></i> End-to-End Packet Flow</h2>
+    <div class="how-wrap">
+      <figure class="tech-figure edge">
+        <img src="/images/packet-flow.png" alt="Onion encrypted Wi-Fi Direct mesh to gateway" loading="lazy" decoding="async" fetchpriority="low" />
+      </figure>
+      <div class="how-points">
+        <div class="point"><span class="tag">Data Plane</span> Wi-Fi Direct at ~<b>100 Mbps</b> between phones.</div>
+        <div class="point"><span class="tag">Onion</span> One encryption layer removed per hop—relays can't read payloads.</div>
+        <div class="point"><span class="tag">Gateway</span> Community nodes bridge to Fibre/LTE/V-SAT.</div>
+        <div class="point"><span class="tag">Spectrum</span> Uses license-exempt Wi-Fi/BLE (sub-100 mW).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Journey -->
+  <section id="journey" class="card glass tech-block reveal">
+    <h2><i data-lucide="route"></i> Join in 5 Steps</h2>
+    <div class="journey">
+      <ol class="steps">
+        <li><b>Get GC</b> — buy on any Solana DEX.</li>
+        <li><b>Subscribe</b> — DM <a href="https://t.me/GbeMeshBot" target="_blank" rel="noopener">@GbeMeshBot</a>.</li>
+        <li><b>Receive License</b> — bot returns a signed Mesh-Pass and Gbe Pass link.</li>
+        <li><b>Install</b> — one-tap installer unlocks bootloader, applies root patch, installs Gbe Pass, validates license.</li>
+        <li><b>Connect</b> — app auto-discovers peers; traffic starts flowing.</li>
+      </ol>
+      <figure class="tech-figure edge">
+        <img src="/images/onboarding-steps.png" alt="Onboarding flow for Gbe Mesh" loading="lazy" decoding="async" fetchpriority="low" />
+      </figure>
+    </div>
+    <div class="cta-row">
+      <a class="primary" href="https://t.me/GbeMeshBot" target="_blank" rel="noopener"><i data-lucide="send"></i> Get your Mesh-Pass</a>
+      <a class="glow" href="#how"><i data-lucide="eye"></i> See how packets flow</a>
+    </div>
+  </section>
+
+  <!-- Economics -->
+  <section id="economics" class="card glass tech-block reveal">
+    <h2><i data-lucide="banknote"></i> Why This Design Works</h2>
+    <div class="chips">
+      <span class="chip big">Zero proprietary hardware</span>
+      <span class="chip big">License-exempt spectrum</span>
+      <span class="chip big">Predictable economics: <b>12 GC / year</b></span>
+      <span class="chip big">Token incentives for relays &amp; gateways</span>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="features">
+      <div class="feature card">
+        <i data-lucide="cpu" class="feature-icon"></i>
+        <h3>Network-Native Utility</h3>
+        <p>GC powers payments, relay incentives, and airdrop mechanics across the Guaso mesh.</p>
+      </div>
+      <div class="feature card">
+        <i data-lucide="shield" class="feature-icon"></i>
+        <h3>Onion Encrypted</h3>
+        <p>Layered encryption means relays move packets without inspecting payloads.</p>
+      </div>
+      <div class="feature card">
+        <i data-lucide="activity" class="feature-icon"></i>
+        <h3>License-Exempt Radios</h3>
+        <p>Sub-100 mW Wi-Fi/BLE lets anyone contribute bandwidth legally.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Socials -->
+  <section id="socials" class="card glass">
+    <h2>Follow Guaso</h2>
+    <div class="social-row">
+      <a href="https://twitter.com/NetworkGbe" target="_blank" rel="noopener"><i data-lucide="twitter"></i> Twitter</a>
+      <a href="https://t.me/GbeMeshBot" target="_blank" rel="noopener"><i data-lucide="send"></i> Telegram</a>
+      <a href="https://github.com/Gbe-Network/Mesh-Network" target="_blank" rel="noopener"><i data-lucide="github"></i> GitHub</a>
+      <a href="https://instagram.com/networkgbe" target="_blank" rel="noopener"><i data-lucide="instagram"></i> Instagram</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© <span id="year"></span> Guaso. All rights reserved.</p>
+    <p class="addr">Receiver (SOL): <code id="recvText">2FGCCowdnpkXX8MGWpdDWcPnpVrGfwHFeSd4choryfeM</code></p>
+  </footer>
+
+  <!-- App logic -->
+  <script src="/js/main.js?v=20250915-102436" defer></script>
+</body>
+</html>
